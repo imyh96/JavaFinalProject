@@ -14,6 +14,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.usermodel.CellType;
 
+import edu.handong.csee.java.ExcelErrorException;
+
 public class ExcelReader {
 	
 	public ArrayList<String> getData(String path, String tempFileName) { // String path를 인자로 전달받는 getData 메소드
@@ -47,27 +49,21 @@ public class ExcelReader {
 		return values;
 	}
 	
-	public ArrayList<String> getFirstData(InputStream is) { // inputStream을 인자로 전달받는 getData 메소드
+	public ArrayList<String> getFirstData(InputStream is, String fileName, ExcelErrorException errors) { // inputStream을 인자로 전달받는 getData 메소드
 		ArrayList<String> values = new ArrayList<String>(); // Using generic data structure ArrayList #1
 		
 		try (InputStream inp = is) { // zip파일 내부에 들어있는 파일의 input 스트림
 		        Workbook wb = WorkbookFactory.create(inp); // 그 스트림의 workbook생성
 		        Sheet sheet = wb.getSheetAt(0); // 그 workbook의 0번째 시트
-		        /*
-		        if(stream == null) {
-					throw errors; // Customized Exception
-				}
-		        if(entry == null) {
-					throw errors; // Customized Exception
-				}
 		        
-		        catch (ExcelErrorException e) {
-					e.saveErrorFile(fileName);
-				}
-		        */
 		        for (Row row : sheet) { // 모든 셀들을 확인하기.
+		        	
+		        	if(row.getLastCellNum() != 7) {
+						throw errors; // Customized Exception
+					}
 		        	if(row == sheet.getRow(0))
 		        		continue;
+		        	
 		            for (Cell cell : row) {           	         
 		            	if (cell == null)
 				            cell = row.createCell(3);
@@ -83,12 +79,14 @@ public class ExcelReader {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}catch (ExcelErrorException e) {
+				e.saveErrorFile(fileName);
 			}
 		
 		return values; // 그 arrayList를 리턴
 	}
 	
-	public ArrayList<String> getSecondData(InputStream is) { // inputStream을 인자로 전달받는 getData 메소드
+	public ArrayList<String> getSecondData(InputStream is, String fileName, ExcelErrorException errors) { // inputStream을 인자로 전달받는 getData 메소드
 		ArrayList<String> values = new ArrayList<String>(); // Using generic data structure ArrayList #2
 		
 		try (InputStream inp = is) { // zip파일 내부에 들어있는 파일의 input 스트림
@@ -98,6 +96,11 @@ public class ExcelReader {
 		        
 		        for (int i = 0; i <= sheet.getLastRowNum(); i++) { // 모든 셀들을 확인하기.
 		        	Row row = sheet.getRow(i);
+		        	/*
+		        	if(row.getLastCellNum() != 4) {
+						throw errors; // Customized Exception
+					}
+					*/
 		        	if(i == 0 || i == 1) // 첫번째 row나 두번째 row일경우 스킵.
 		        		continue;
 		            for (int j = 0; j < row.getLastCellNum(); j++) {
@@ -117,7 +120,9 @@ public class ExcelReader {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}/* catch (ExcelErrorException e) {
+				e.saveErrorFile(fileName);
+			}*/
 		
 		return values; // 그 arrayList를 리턴
 	}

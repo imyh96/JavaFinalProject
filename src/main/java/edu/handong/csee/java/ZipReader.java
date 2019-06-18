@@ -29,7 +29,7 @@ public class ZipReader {
 				    
 				    String fileName = tempFileName.split("[.]")[0];
 				    
-				    readFileInZip(tempPath + "\\" + tempFileName, result1, first, fileName);    
+				    readFileInZip(tempPath + "\\" + tempFileName, result1, first, fileName, errors);    
 				  }
 				}
 			result1.saveFile(args[1] + "\\result1.xlsx");
@@ -59,7 +59,7 @@ public class ZipReader {
 
 	
 	
-	public void readFileInZip(String path, ExcelWriter result, boolean second, String fileName) {
+	public void readFileInZip(String path, ExcelWriter result, boolean second, String fileName, ExcelErrorException errors) {
 		ZipFile zipFile;
 		try {
 			zipFile = new ZipFile(path); // 전달된 주소에 있는 파일을 ZipFile클래스로써 생성. // 여기서 EXCEPTION 발생 가능
@@ -69,11 +69,11 @@ public class ZipReader {
 			InputStream stream = zipFile.getInputStream(entry); // input 스트림 생성.	
 		    
 		    if(!second) {
-			    result.setFirstData(myReader.getFirstData(stream), fileName); // result1 엑셀파일에 저장.
+			    result.setFirstData(myReader.getFirstData(stream, fileName, errors), fileName); // result1 엑셀파일에 저장.
 		    }else {
 			    entry = entries.nextElement(); // 두번째 액셀 파일
 			    stream = zipFile.getInputStream(entry); // input 스트림 생성
-			    result.setSecondData(myReader.getSecondData(stream), fileName); // result2 엑셀파일에 저장.	    	
+			    result.setSecondData(myReader.getSecondData(stream, fileName, errors), fileName); // result2 엑셀파일에 저장.	    	
 		    }
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
